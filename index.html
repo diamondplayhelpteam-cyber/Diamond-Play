@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Diamond Reward</title>
+  <title>Diamond Play</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -55,7 +55,7 @@
 </head>
 <body>
 
-  <h1>💎 Diamond Reward</h1>
+  <h1>💎 Diamond Play</h1>
 
   <!-- LOGIN PAGE -->
   <div class="box" id="loginPage">
@@ -79,11 +79,11 @@
   </div>
 
 <script type="module">
-  // 🔥 Import Firebase CDN
+  // 🔥 Firebase CDN
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-  // 🔥 Your Firebase config
+  // 🔥 Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyABMbaOFqrDza62GH03uY8J3cxsguaNCXo",
     authDomain: "diamondplay-58ba1.firebaseapp.com",
@@ -98,19 +98,24 @@
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  // 🔥 Google Login
+  // 🔥 Google Login (Redirect)
   window.googleLogin = function(){
-    signInWithPopup(auth, provider)
-    .then((result) => {
+    signInWithRedirect(auth, provider);
+  }
+
+  // 🔹 Handle Redirect Result (After Gmail select)
+  getRedirectResult(auth)
+  .then((result)=>{
+    if(result?.user){
       const user = result.user;
       localStorage.setItem("diamondUser", user.displayName);
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("referralPage").classList.remove("hidden");
-    })
-    .catch((err)=>alert(err.message));
-  }
+    }
+  })
+  .catch((err)=>{ console.log(err); });
 
-  // 🔥 Go to Home from Referral
+  // 🔹 Referral Page → Home
   window.goHome = function(){
     let code = document.getElementById("refCode").value;
     if(code!="") alert("Referral added! +50 Diamonds");
@@ -121,7 +126,7 @@
     document.getElementById("diamonds").innerText = localStorage.getItem("diamonds");
   }
 
-  // 🔥 Logout
+  // 🔹 Logout
   window.logoutUser = function(){
     signOut(auth).then(()=>{
       localStorage.clear();
@@ -129,7 +134,6 @@
       document.getElementById("loginPage").classList.remove("hidden");
     });
   }
-
 </script>
 
 </body>
