@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Diamond Reward App</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      margin: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .task { background: #00c6ff; color: black; }
+    .redeem { background: gold; }
+  </style>
+</head>
+
+<body>
+
+  <h1>💎 Diamond Reward</h1>
+
+  <div id="loginBox" class="box">
+    <h3>Enter Your Name</h3>
+    <input type="text" id="username" placeholder="Your Name">
+    <br><br>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="appBox" class="box" style="display:none;">
+    <h3 id="welcome"></h3>
+    <h2>Points: <span id="points">0</span></h2>
+
+    <button class="task" onclick="addPoints(10)">Complete Task 1 (+10)</button>
+    <button class="task" onclick="addPoints(20)">Complete Task 2 (+20)</button>
+    <button class="task" onclick="addPoints(50)">Complete Task 3 (+50)</button>
+
+    <br><br>
+    <button class="redeem" onclick="redeem()">Redeem 100 Points</button>
+  </div>
+
+<script>
+
+let points = localStorage.getItem("points") || 0;
+document.getElementById("points").innerText = points;
+
+function login() {
+  let name = document.getElementById("username").value;
+  if(name == "") {
+    alert("Enter Name First");
+    return;
+  }
+
+  localStorage.setItem("username", name);
+  document.getElementById("welcome").innerText = "Welcome " + name;
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("appBox").style.display = "block";
+}
+
+function addPoints(value) {
+  points = parseInt(points) + value;
+  localStorage.setItem("points", points);
+  document.getElementById("points").innerText = points;
+}
+
+function redeem() {
+  if(points >= 100) {
+    points -= 100;
+    localStorage.setItem("points", points);
+    document.getElementById("points").innerText = points;
+    alert("Redeem Successful!");
+  } else {
+    alert("Not Enough Points");
+  }
+}
+
+</script>
+
+</body>
+  </html>
