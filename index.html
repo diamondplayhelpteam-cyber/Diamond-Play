@@ -1,91 +1,135 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Diamond Reward</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diamond Reward</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin:0;
+      font-family:Arial, sans-serif;
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      color:white;
+      text-align:center;
+    }
 
-<style>
-body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
+    .box {
+      width:90%;
+      max-width:400px;
+      background: rgba(255,255,255,0.1);
+      padding:30px;
+      border-radius:15px;
+      backdrop-filter: blur(10px);
+      margin:auto;
+    }
 
-.container{
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    padding:30px;
-    border-radius:15px;
-    width:90%;
-    max-width:350px;
-    text-align:center;
-    color:white;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
-}
+    button {
+      padding:12px 20px;
+      margin-top:15px;
+      width:100%;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:16px;
+    }
 
-h1{
-    margin-bottom:20px;
-}
+    .google-btn {
+      background:white;
+      color:black;
+      font-weight:bold;
+    }
 
-input{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    margin-bottom:15px;
-    outline:none;
-}
+    input {
+      padding:10px;
+      width:90%;
+      border-radius:6px;
+      border:none;
+      margin-top:10px;
+    }
 
-button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    background:#00c6ff;
-    color:white;
-    font-weight:bold;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-button:hover{
-    background:#0072ff;
-}
-
-.small{
-    font-size:12px;
-    margin-top:10px;
-    opacity:0.7;
-}
-</style>
-
+    .hidden { display:none; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>💎 Diamond Reward</h1>
-    <input type="text" id="username" placeholder="Enter Your Name">
-    <button onclick="loginUser()">Login</button>
-    <div class="small">Earn Diamonds & Redeem Rewards</div>
-</div>
+  <h1>💎 Diamond Reward</h1>
 
-<script>
-function loginUser(){
-    var name = document.getElementById("username").value;
+  <!-- LOGIN PAGE -->
+  <div class="box" id="loginPage">
+    <h2>Login with Google</h2>
+    <button class="google-btn" onclick="googleLogin()">Sign in with Google</button>
+  </div>
 
-    if(name==""){
-        alert("Please enter your name");
-        return;
-    }
+  <!-- REFERRAL PAGE -->
+  <div class="box hidden" id="referralPage">
+    <h2>Have a Referral Code?</h2>
+    <input type="text" id="refCode" placeholder="Enter referral code">
+    <br>
+    <button onclick="goHome()">Continue</button>
+  </div>
 
-    localStorage.setItem("diamondUser", name);
-    alert("Welcome " + name + " 🎉");
-}
+  <!-- HOME PAGE -->
+  <div class="box hidden" id="homePage">
+    <h2>Welcome, <span id="userName"></span> 💎</h2>
+    <p>Diamonds: <span id="diamonds">0</span></p>
+    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  </div>
+
+<script type="module">
+  // 🔥 Import Firebase CDN
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+  // 🔥 Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyABMbaOFqrDza62GH03uY8J3cxsguaNCXo",
+    authDomain: "diamondplay-58ba1.firebaseapp.com",
+    projectId: "diamondplay-58ba1",
+    storageBucket: "diamondplay-58ba1.firebasestorage.app",
+    messagingSenderId: "710600063172",
+    appId: "1:710600063172:web:bcbef31cad5632f197f191",
+    measurementId: "G-H8JB05JC7E"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // 🔥 Google Login
+  window.googleLogin = function(){
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      const user = result.user;
+      localStorage.setItem("diamondUser", user.displayName);
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("referralPage").classList.remove("hidden");
+    })
+    .catch((err)=>alert(err.message));
+  }
+
+  // 🔥 Go to Home from Referral
+  window.goHome = function(){
+    let code = document.getElementById("refCode").value;
+    if(code!="") alert("Referral added! +50 Diamonds");
+    localStorage.setItem("diamonds", code!=""?50:0);
+    document.getElementById("referralPage").classList.add("hidden");
+    document.getElementById("homePage").classList.remove("hidden");
+    document.getElementById("userName").innerText = localStorage.getItem("diamondUser");
+    document.getElementById("diamonds").innerText = localStorage.getItem("diamonds");
+  }
+
+  // 🔥 Logout
+  window.logoutUser = function(){
+    signOut(auth).then(()=>{
+      localStorage.clear();
+      document.getElementById("homePage").classList.add("hidden");
+      document.getElementById("loginPage").classList.remove("hidden");
+    });
+  }
+
 </script>
 
 </body>
